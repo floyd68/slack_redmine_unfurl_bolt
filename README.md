@@ -26,14 +26,12 @@ https://api.slack.com/apps/
 
 #### OAuth & Permissions
 
-`Bot Token Scopes`
+In `Bot Token Scopes` Add
 
-Add
-
-chat:write
-links:read
-links:write
-users:read.email
+- chat:write
+- links:read
+- links:write
+- users:read.email
 
 #### Event Subscriptions
 
