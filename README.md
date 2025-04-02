@@ -26,14 +26,12 @@ https://api.slack.com/apps/
 
 #### OAuth & Permissions
 
-`Bot Token Scopes`
+In `Bot Token Scopes` Add
 
-Add
-
-chat:write
-links:read
-links:write
-users:read.email
+- chat:write
+- links:read
+- links:write
+- users:read.email
 
 #### Event Subscriptions
 
@@ -52,7 +50,15 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-create systemd service file
+create environment config `/etc/slack_redmine_bolt.conf`
+```
+REDMINE_URL=http://your_redmine_url
+REDMINE_API_KEY=readmine api key from http://redmine_url/my/account
+SLACK_BOT_TOKEN=xoxb-xxxxxx...
+SLACK_APP_TOKEN=xapp-1-xxxxx...
+```
+
+create systemd service file `/etc/systemd/system/slack_unfurler.service`
 ```
 [Unit]
 Description=Slack Redmine unfurler
@@ -68,4 +74,9 @@ Restart=on-abort
 
 [Install]
 WantedBy=multi-user.target
+```
+
+register and run with systemd
+```
+systemctl enable --now slack_unfurler.service
 ```

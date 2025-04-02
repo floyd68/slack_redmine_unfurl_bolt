@@ -6,13 +6,15 @@ from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from slack_sdk import WebClient
 from urllib.parse import urlparse
-
-print(dict(os.environ))
+import logging
+import sys
 
 REDMINE_URL = os.environ['REDMINE_URL']
 REDMINE_API_KEY = os.environ['REDMINE_API_KEY']
                  
 redmine = Redmine(REDMINE_URL, key=REDMINE_API_KEY)
+
+logging.basicConfig(level=logging.DEBUG)
 
 # Initializes your app with your bot token and socket mode handler
 app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
@@ -113,7 +115,7 @@ def parse_url(url):
         return ""
 
 @app.event("link_shared")
-def message_link(body, say):
+def message_link(body, say, logger):
     message = body["event"]
     channel = message["channel"]
     message_ts = message["message_ts"]
