@@ -1,4 +1,5 @@
 import os
+import re
 from html2text import HTML2Text
 from redminelib import Redmine
 from slack_bolt import App
@@ -17,6 +18,20 @@ redmine = Redmine(REDMINE_URL, key=REDMINE_API_KEY)
 app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
 slack_client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
 
+REGEX_REPLACE = (
+  (re.compile('^- ', flags=re.M), '• '),
+  (re.compile('^  - ', flags=re.M), '  ◦ '),
+  (re.compile('^    - ', flags=re.M), '    ⬩ '), # ◆
+  (re.compile('^      - ', flags=re.M), '    ◽ '),
+  (re.compile('^#+ (.+)$', flags=re.M), r'*\1*'),
+  (re.compile('\*\*'), '*'),
+)
+
+def markdown2slack(t):
+    for regex, replacement in REGEX_REPLACE:
+        t = regex.sub(replacement, t)
+    return t
+    
 def contents_issue(url, paths):
     try:
         issue = redmine.issue.get(paths[2])
@@ -54,7 +69,7 @@ def contents_issue(url, paths):
             { "title" : "시작시간", "value" : issue.start_date.strftime("%Y/%m/%d"), "short" : True},
             { "title" : "완료기한", "value" : due_date, "short" : True }
         ],
-        "text" : description + "\n\n",
+        "text" : markdown2slack(description) + "\n\n",
         "footer" : "DIVERSE Redmine"
     }
     return content
@@ -74,7 +89,7 @@ def contents_version(url, paths):
             "title" : version.project.name + " @" + version.name,
             "title_link" : url,
             "color" : "#7c97d1",
-            "text" : description,
+            "text" : markdown2slack(description),
             "fields" : [
                 { "title" : "상태", "value" : version.status, "short" : True },
                 { "title" : "완료기한", "value" : version.due_date.strftime("%Y/%m/%d"), "short" : True }
